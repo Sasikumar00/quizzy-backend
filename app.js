@@ -19,7 +19,7 @@ app.use(cors());
 
 const getRooms = async()=>{
     try{
-        const res = await fetch('http://localhost:8080/api/v1/getrooms');
+        const res = await fetch(`${process.env.API_URL}/getrooms`);
         const rooms = await res.json();
         return rooms.rooms;
     }
@@ -30,7 +30,7 @@ const getRooms = async()=>{
 
 const addUserToRoom = async(rID,uID)=>{
    try{
-    const res = await fetch('http://localhost:8080/api/v1/add-user-to-room',{
+    const res = await fetch(`${process.env.API_URL}/add-user-to-room`,{
         method: 'POST',
         body: JSON.stringify({ rID, uID }),
         headers: {
@@ -47,7 +47,7 @@ const addUserToRoom = async(rID,uID)=>{
 
 const addMessageToDatabase = async(rID, newMsg)=>{
     try{
-        const res = await fetch('http://localhost:8080/api/v1/add-msg-to-db', {
+        const res = await fetch(`${process.env.API_URL}/add-msg-to-db`, {
             method: 'POST',
             body: JSON.stringify({rID, newMsg}),
             headers: {
@@ -62,7 +62,7 @@ const addMessageToDatabase = async(rID, newMsg)=>{
 
 const getMessages = async(rID)=>{
     try{
-        const res = await fetch('http://localhost:8080/api/v1/get-messages', {
+        const res = await fetch(`${process.env.API_URL}/get-messages`, {
             method: 'POST',
             body: JSON.stringify({rID}),
             headers: {
@@ -79,7 +79,7 @@ const getMessages = async(rID)=>{
 
 const removeUserFromRoom = async(rID, uID)=>{
     try{
-        const res = await fetch('http://localhost:8080/api/v1/remove-user-from-room', {
+        const res = await fetch(`${process.env.API_URL}/remove-user-from-room`, {
             method: 'POST',
             body: JSON.stringify({ rID, uID }),
             headers: {
@@ -96,7 +96,7 @@ const removeUserFromRoom = async(rID, uID)=>{
 
 const getRoomDetail = async(rID)=>{
     try{
-        const res = await fetch('http://localhost:8080/api/v1/get-room-details', {
+        const res = await fetch(`${process.env.API_URL}/get-room-details`, {
             method: 'POST',
             body: JSON.stringify({ rID }),
             headers: {
@@ -113,7 +113,7 @@ const getRoomDetail = async(rID)=>{
 
 const addUsertoQuizRoom = async(rID, qID)=>{
     try{
-        const res = await fetch('http://localhost:8080/api/v1/add-user-to-quizroom',{
+        const res = await fetch(`${process.env.API_URL}/add-user-to-quizroom`,{
             method: 'POST',
             body: JSON.stringify({ rID, qID }),
             headers: {
@@ -147,7 +147,7 @@ const updateQuizRoomMembers = async(rID)=>{
 
 const wrapUpRoom = async(qID)=>{
     try{
-        const res = await fetch('http://localhost:8080/api/v1/wrapup-room', {
+        const res = await fetch(`${process.env.API_URL}/wrapup-room`, {
             method: 'POST',
             body: JSON.stringify({ qID }),
             headers: {
@@ -165,7 +165,7 @@ const wrapUpRoom = async(qID)=>{
 
 const getQuestions = async()=>{
     try{
-        const res = await fetch('http://localhost:8080/api/v1/get-random-questions');
+        const res = await fetch(`${process.env.API_URL}/get-random-questions`);
         const response = await res.json();
         return response.questions;
     }
@@ -195,7 +195,7 @@ const updateQuizCompletionStatus = async(qID, userID, time_taken,answers)=>{
 
 const checkAllCompleted = async(qID)=>{
     try{
-        const res = await fetch('http://localhost:8080/api/v1/all-users-completed', {
+        const res = await fetch(`${process.env.API_URL}/all-users-completed`, {
             method: 'POST',
             body: JSON.stringify({ qID }),
             headers: {
@@ -213,7 +213,7 @@ const checkAllCompleted = async(qID)=>{
 
 const getResults = async(qID)=>{
     try{
-        const res = await fetch('http://localhost:8080/api/v1/get-results',{
+        const res = await fetch(`${process.env.API_URL}/get-results`,{
             method: 'POST',
             body: JSON.stringify({qID}),
             headers: {
@@ -231,7 +231,7 @@ const getResults = async(qID)=>{
 
 const deleteMyRoom = async(rID, uID)=>{
     try{
-        const res = await fetch('http://localhost:8080/api/v1/delete-my-room',{
+        const res = await fetch(`${process.env.API_URL}/delete-my-room`,{
             method: 'POST',
             body: JSON.stringify({rID,uID}),
             headers: {
@@ -331,6 +331,8 @@ app.get('/', (req,res)=>{
 
 app.use('/api/v1',userRoutes);
 
-server.listen(8080,()=>{
+const PORT = process.env.PORT || 8080;
+
+server.listen(PORT,()=>{
     console.log(`Listening on http://localhost:8080`);
 })
