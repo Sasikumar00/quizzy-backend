@@ -246,6 +246,40 @@ const deleteMyRoom = async(rID, uID)=>{
     }
 }
 
+const getMyRooms = async(userID)=>{
+    try{
+        const res = await fetch(`${process.env.API_URL}/get-my-rooms`,{
+            method: 'POST',
+            body: JSON.stringify({userID}),
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        const response = await res.json();
+        return response.rooms;
+    }
+    catch(error){
+        console.log(error);
+    }
+}
+
+const deleteAllMyRooms = async(uID)=>{
+    try{
+        const res = await fetch(`${process.env.API_URL}/delete-all-my-rooms`, {
+            method: 'POST',
+            body: JSON.stringify({uID}),
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        const response = await res.json();
+        return response;
+    }
+    catch(error){
+        console.log(error);
+    }
+}
+
 connectDB();
 
 io.on('connection',(socket)=>{
@@ -320,7 +354,20 @@ io.on('connection',(socket)=>{
     socket.on('delete-my-room', async({rID, uID})=>{
         const response = await deleteMyRoom(rID, uID);
         io.emit('updateRooms');
+        io.to(rID).emit('roomdeleted');
         socket.emit('deletion-ack', response);
+    });
+
+    socket.on('userloggedout', async({uID})=>{
+        const response = await deleteAllMyRooms(uID);
+        if(response.status==='success'){
+            const myrooms = await getMyRooms(uID);
+            myrooms.forEach(room=>{
+                io.to(room.name).emit('roomdeleted');
+            })
+            socket.emit('userlogout-ack');
+            io.emit('updateRooms');
+        }
     })
 
 })

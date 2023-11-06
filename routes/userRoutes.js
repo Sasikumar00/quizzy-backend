@@ -106,6 +106,20 @@ router.post('/delete-user', async(req,res)=>{
     if(!existingUser){
         return res.send({status: 'fail', message: 'No user found'});
     }
+    const existingRoom = await RoomModel.findOne({creatorID: existingUser._id, status: { $ne: 'completed' }})?.populate('members');
+    if(existingRoom){
+        const existingQuizRoom = await QuizModel.findOne({roomID: existingRoom._id, status: { $ne: 'completed' },});
+        existingRoom.members.forEach(async(member)=>{
+            const existingUser = await userModel.findOne({username: member.username});
+            existingUser.isJoinedRoom = false;
+            existingUser.joinedRoomID = null;
+            await existingUser.save();
+        })
+        existingRoom.status='completed';
+        existingQuizRoom.status='completed';
+        await existingRoom.save();
+        await existingQuizRoom.save();
+    }
     await userModel.deleteOne({username});
     res.send({status: 'success', message: 'Logging out'});
     }
@@ -478,19 +492,50 @@ router.post('/wrapup-room', async(req,res)=>{
 router.post('/delete-my-room', async(req,res)=>{
     const {rID, uID} = req.body;
     try{
-        const existingRoom = await RoomModel.findOne({name: rID});
+        const existingRoom = await RoomModel.findOne({name: rID, status: {$ne: 'completed'}}).populate('members')
         if(!existingRoom){
             return res.send({status: 'fail', message: 'Room not found'});
         }
         if(existingRoom.creatorID!=uID){
             return res.send({status: 'fail', message: 'Unauthorized'});
         }
-        const existingQuizRoom = await QuizModel.findOne({name: `quiz-${rID}`});
+        const existingQuizRoom = await QuizModel.findOne({name: `quiz-${rID}`, status: {$ne: 'completed'}});
+        existingRoom.members.forEach(async(member)=>{
+            const existingUser = await userModel.findOne({username: member.username});
+            existingUser.isJoinedRoom = false;
+            existingUser.joinedRoomID = null;
+            await existingUser.save();
+        })
         existingRoom.status='completed';
         existingQuizRoom.status='completed';
         await existingRoom.save();
         await existingQuizRoom.save();
         res.send({status: 'success', message: 'Room deleted successfully'});
+    }
+    catch(error){
+        console.log(error);
+        res.send({status: 'error', message: 'Something went wrong'})
+    }
+})
+
+router.post('/delete-all-my-rooms', async(req,res)=>{
+    const {uID} = req.body;
+    try{
+        const existingRooms = await RoomModel.find({creatorID: uID, status: {$ne: 'completed'}}).populate('members');
+        existingRooms.forEach(async(room)=>{
+            room.members.forEach(async(member)=>{
+                const existingUser = await userModel.findOne({username: member.username});
+                existingUser.isJoinedRoom = false;
+                existingUser.joinedRoomID = null;
+                await existingUser.save();
+            })
+            const existingQuizRoom = await QuizModel.findOne({name: `quiz-${room.name}`, status: {$ne: 'completed'}});
+            existingQuizRoom.status = 'completed';
+            await existingQuizRoom.save();
+            room.status='completed';
+            await room.save();
+        });
+        return res.send({status: 'success', message: 'Removed all rooms'});
     }
     catch(error){
         console.log(error);
