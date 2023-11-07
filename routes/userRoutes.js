@@ -404,7 +404,7 @@ router.post('/get-results', async(req,res)=>{
         const existingQuizRoom = await QuizModel.findOne({name: qID, status: {$ne: 'completed'}}).populate('members');
         const members = existingQuizRoom.members;
         if(existingQuizRoom.player1_Score===existingQuizRoom.player2_Score){
-            if(existingQuizRoom.player1_Time_Taken>existingQuizRoom.player2_Time_Taken){
+            if(existingQuizRoom.player1_Time_Taken<existingQuizRoom.player2_Time_Taken){
                 results.push({
                     name: members[0].username,
                     score: existingQuizRoom.player1_Score,
@@ -416,7 +416,7 @@ router.post('/get-results', async(req,res)=>{
                     time_taken: existingQuizRoom.player2_Time_Taken
                 });
             }
-            else if(existingQuizRoom.player1_Time_Taken<existingQuizRoom.player2_Time_Taken){
+            else if(existingQuizRoom.player1_Time_Taken>existingQuizRoom.player2_Time_Taken){
                 results.push({
                     name: members[1].name,
                     score: existingQuizRoom.player2_Score,
