@@ -418,12 +418,12 @@ router.post('/get-results', async(req,res)=>{
             }
             else if(existingQuizRoom.player1_Time_Taken>existingQuizRoom.player2_Time_Taken){
                 results.push({
-                    name: members[1].name,
+                    name: members[1].username,
                     score: existingQuizRoom.player2_Score,
                     time_taken: existingQuizRoom.player2_Time_Taken
                 });
                 results.push({
-                    name: members[0].name,
+                    name: members[0].username,
                     score: existingQuizRoom.player1_Score,
                     time_taken: existingQuizRoom.player1_Time_Taken
                 });
@@ -447,12 +447,12 @@ router.post('/get-results', async(req,res)=>{
         }
         else{
             results.push({
-                name: members[1].name,
+                name: members[1].username,
                 score: existingQuizRoom.player2_Score,
                 time_taken: existingQuizRoom.player2_Time_Taken
             });
             results.push({
-                name: members[0].name,
+                name: members[0].username,
                 score: existingQuizRoom.player1_Score,
                 time_taken: existingQuizRoom.player1_Time_Taken
             });
